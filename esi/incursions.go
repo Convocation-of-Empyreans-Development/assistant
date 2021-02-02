@@ -18,6 +18,7 @@ type IncursionData struct {
 	StagingSolarSystem   string
 	State                string
 	Type                 string
+	SecurityStatus       float32
 }
 
 // Checks whether an error was returned by the ESI API, and panics if this is the case.
@@ -56,6 +57,7 @@ func ProcessIncursionData(client *goesi.APIClient, data []esi.GetIncursions200Ok
 			StagingSolarSystem:   IdToName(client, incursion.StagingSolarSystemId),
 			State:                incursion.State,
 			Type:                 incursion.Type_,
+			SecurityStatus:       GetSecurityStatus(client, incursion.StagingSolarSystemId),
 		}
 		incursions = append(incursions, processedIncursion)
 	}
@@ -77,6 +79,12 @@ func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
 		names = append(names, item.Name)
 	}
 	return names
+}
+
+func GetSecurityStatus(client *goesi.APIClient, systemID int32) float32 {
+	system, response, err := client.ESI.UniverseApi.GetUniverseSystemsSystemId(context.TODO(), systemID, nil)
+	CheckESIResponse(err, response)
+	return system.SecurityStatus
 }
 
 func GetIncursions() []IncursionData {

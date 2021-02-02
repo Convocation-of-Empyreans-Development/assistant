@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strconv"
 	"strings"
 	"syscall"
 
@@ -72,6 +73,20 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+func PickColorBySecurityStatus(securitystatus float32) int {
+	var color string
+	if securitystatus > 0.5 {
+		color = "04ff00"
+	} else if securitystatus < 0.5 && securitystatus > 0 {
+		color = "ff8400"
+	} else {
+		color = "ff0000"
+	}
+
+	color64, _ := strconv.ParseInt(color, 16, 64)
+	return int(color64)
+}
+
 // SendIncursionDataEmbed fetches the latest Incursion data from the ESI API,
 // and converts it into some easy-to-read embedded messages sent as a reply
 // in the requested channel.
@@ -79,6 +94,7 @@ func SendIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
 	incursions := esi.GetIncursions()
 	for _, incursion := range incursions {
 		embed := &discordgo.MessageEmbed{
+			Color: PickColorBySecurityStatus(incursion.SecurityStatus),
 			Title: fmt.Sprintf("Incursion in %v", incursion.Constellation),
 			Fields: []*discordgo.MessageEmbedField{
 				{
