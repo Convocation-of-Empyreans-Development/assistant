@@ -37,10 +37,7 @@ func CreateESIClient() *goesi.APIClient {
 // Get raw incursion data from the ESI API.
 func GetIncursionData(client *goesi.APIClient) []esi.GetIncursions200Ok {
 	incursions, response, err := client.ESI.IncursionsApi.GetIncursions(context.TODO(), nil)
-	if err != nil || response.StatusCode != http.StatusOK {
-		panic(err)
-	}
-
+	CheckESIResponse(err, response)
 	return incursions
 }
 
