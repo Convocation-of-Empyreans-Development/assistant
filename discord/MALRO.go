@@ -1,4 +1,4 @@
-package discord //switch back to discord after testing
+package discord
 
 import (
 	"encoding/json"
@@ -11,10 +11,14 @@ import (
 	"github.com/lichgrave/MALRO_incursion_bot/esi"
 )
 
+// Config represents the Discord bot configuration.
 type Config struct {
+	// Token holds the authentication token granted by Discord.
 	Token string `json:"token"`
 }
 
+// ReadConfig reads a JSON file from disk containing the bot configuration
+// and attempts to parse it, returning a Config struct if this is the case.
 func ReadConfig(filename string) *Config {
 	dat, err := ioutil.ReadFile(filename)
 	if err != nil {
@@ -29,6 +33,8 @@ func ReadConfig(filename string) *Config {
 	return config
 }
 
+// HandleMessageCreate is the Discord event handler for receiving new text messages in guilds or DMs.
+// This handler is responsible for dispatching and executing commands issued by users.
 func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
@@ -41,16 +47,19 @@ func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 	}
 }
 
+// PickColorBySecurityStatus chooses a colour for the Discord message embed based on the
+// incursion's system security status
 func PickColorBySecurityStatus(securitystatus float32) int {
 	var color string
 	if securitystatus > 0.5 {
-		color = "04ff00"
+		color = "04ff00" // high-security: green
 	} else if securitystatus < 0.5 && securitystatus > 0 {
-		color = "ff8400"
+		color = "ff8400" // low-secuity: orange
 	} else {
-		color = "ff0000"
+		color = "ff0000" // null-security: red
 	}
 
+	// convert hex #RRGGBB to int (required by discordgo)
 	color64, _ := strconv.ParseInt(color, 16, 64)
 	return int(color64)
 }
