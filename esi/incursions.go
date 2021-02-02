@@ -70,9 +70,9 @@ func IdToName(client *goesi.APIClient, id int32) string {
 
 // Converts a list of int32 IDs to their corresponding names using the ESI API.
 func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
-	api_names, response, err := client.ESI.UniverseApi.PostUniverseNames(context.TODO(), ids, nil)
+	apiNames, response, err := client.ESI.UniverseApi.PostUniverseNames(context.TODO(), ids, nil)
 	CheckESIResponse(err, response)
-	for _, item := range api_names {
+	for _, item := range apiNames {
 		names = append(names, item.Name)
 	}
 	return names
