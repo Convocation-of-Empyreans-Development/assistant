@@ -6,9 +6,11 @@ import (
 	"io/ioutil"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"github.com/lichgrave/MALRO_incursion_bot/esi"
 )
 
 type Config struct {
@@ -59,14 +61,45 @@ func main() {
 }
 
 func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-
 	// Ignore all messages created by the bot itself
 	// This isn't required in this specific example but it's a good practice.
 	if m.Author.ID == s.State.User.ID {
 		return
 	}
-	// If the message is "ping" reply with "Pong!"
+	// Message handling: implement commands
 	if m.Content == "!incursions" {
-		s.ChannelMessageSend(m.ChannelID, "Pong!")
+		SendIncursionDataEmbed(s, m)
+	}
+}
+
+// SendIncursionDataEmbed fetches the latest Incursion data from the ESI API,
+// and converts it into some easy-to-read embedded messages sent as a reply
+// in the requested channel.
+func SendIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
+	incursions := esi.GetIncursions()
+	for _, incursion := range incursions {
+		embed := &discordgo.MessageEmbed{
+			Title: fmt.Sprintf("Incursion in %v", incursion.Constellation),
+			Fields: []*discordgo.MessageEmbedField{
+				{
+					Name:   "Staging system",
+					Value:  incursion.StagingSolarSystem,
+					Inline: true,
+				},
+				{
+					Name:   "Influence",
+					Value:  fmt.Sprintf("%.1f%%", incursion.Influence*100),
+					Inline: true,
+				},
+				{
+					Name:  "Infested systems",
+					Value: strings.Join(incursion.InfestedSolarSystems, ", "),
+				},
+			},
+		}
+		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
+		if err != nil {
+			panic(err)
+		}
 	}
 }

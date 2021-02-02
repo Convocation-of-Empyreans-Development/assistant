@@ -1,4 +1,4 @@
-package main
+package esi
 
 import (
 	"context"
@@ -79,6 +79,13 @@ func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
 	return names
 }
 
+func GetIncursions() []IncursionData {
+	client := CreateESIClient()
+	rawData := GetIncursionData(client)
+	return ProcessIncursionData(client, rawData)
+}
+
+// main() is only used for testing the incursion data fetch & process.
 func main() {
 	client := CreateESIClient()
 	rawData := GetIncursionData(client)
