@@ -10,38 +10,47 @@ import (
 
 // IncursionData holds processed data on the state of a currently active incursion.
 type IncursionData struct {
-	Constellation        string
-	Faction              string
-	HasBoss              bool
+	// Constellation represents the constellation under incursion.
+	Constellation string
+	// Faction represents the faction responsible for the incursion.
+	Faction string
+	// HasBoss represents whether the incursion boss is present in the HQ system.
+	HasBoss bool
+	// InfestedSolarSystems represents the list of systems currently under incursion.
 	InfestedSolarSystems []string
-	Influence            float32
-	StagingSolarSystem   string
-	State                string
-	Type                 string
-	SecurityStatus       float32
+	// Influence represents the current level of influence on a scale from 0 to 1.
+	Influence float32
+	// StagingSolarSystem represents the uninvaded system acting as the staging point for the incursion.
+	StagingSolarSystem string
+	// State represents the current state of the incursion.
+	State string
+	// Type represents the type of incursion created by the server.
+	Type string
+	// SecurityStatus represents the security status of the staging system.
+	SecurityStatus float32
 }
 
-// Checks whether an error was returned by the ESI API, and panics if this is the case.
+// CheckESIResponse checks whether an error was returned by the ESI API, and panics if this is the case.
 func CheckESIResponse(err error, response *http.Response) {
 	if err != nil || response.StatusCode != http.StatusOK {
 		panic(err)
 	}
 }
 
-// Create a new ESI client.
+// CreateESIClient creates a new ESI client.
 func CreateESIClient() *goesi.APIClient {
 	client := goesi.NewAPIClient(&http.Client{}, "MALRO Incursions Monitor")
 	return client
 }
 
-// Get raw incursion data from the ESI API.
+// GetIncursionData gets raw incursion data from the ESI API.
 func GetIncursionData(client *goesi.APIClient) []esi.GetIncursions200Ok {
 	incursions, response, err := client.ESI.IncursionsApi.GetIncursions(context.TODO(), nil)
 	CheckESIResponse(err, response)
 	return incursions
 }
 
-// Process the raw incursion data returned by the API into a human-readable form.
+// ProcessIncursionData processes the raw incursion data returned by the API into a human-readable form.
 // IDs for systems, constellations and factions are converted into their equivalent names.
 func ProcessIncursionData(client *goesi.APIClient, data []esi.GetIncursions200Ok) (incursions []IncursionData) {
 	for _, incursion := range data {
@@ -61,14 +70,14 @@ func ProcessIncursionData(client *goesi.APIClient, data []esi.GetIncursions200Ok
 	return incursions
 }
 
-// Converts an int32 ID to the corresponding name using the ESI API.
+// IdToName converts an int32 ID to the corresponding name using the ESI API.
 func IdToName(client *goesi.APIClient, id int32) string {
 	names, response, err := client.ESI.UniverseApi.PostUniverseNames(context.TODO(), []int32{id}, nil)
 	CheckESIResponse(err, response)
 	return names[0].Name
 }
 
-// Converts a list of int32 IDs to their corresponding names using the ESI API.
+// IdsToNames converts a list of int32 IDs to their corresponding names using the ESI API.
 func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
 	apiNames, response, err := client.ESI.UniverseApi.PostUniverseNames(context.TODO(), ids, nil)
 	CheckESIResponse(err, response)
@@ -78,12 +87,14 @@ func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
 	return names
 }
 
+// GetSecurityStatus gets the security status of a given system ID from the ESI API.
 func GetSecurityStatus(client *goesi.APIClient, systemID int32) float32 {
 	system, response, err := client.ESI.UniverseApi.GetUniverseSystemsSystemId(context.TODO(), systemID, nil)
 	CheckESIResponse(err, response)
 	return system.SecurityStatus
 }
 
+// GetIncursions fetches the latest incursion data from ESI, processes it and returns it to the caller.
 func GetIncursions() []IncursionData {
 	client := CreateESIClient()
 	rawData := GetIncursionData(client)
