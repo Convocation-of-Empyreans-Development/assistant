@@ -2,7 +2,6 @@ package esi
 
 import (
 	"context"
-	"fmt"
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
 	"net/http"
@@ -99,11 +98,4 @@ func GetIncursions() []IncursionData {
 	client := CreateESIClient()
 	rawData := GetIncursionData(client)
 	return ProcessIncursionData(client, rawData)
-}
-
-// main() is only used for testing the incursion data fetch & process.
-func main() {
-	client := CreateESIClient()
-	rawData := GetIncursionData(client)
-	fmt.Printf("%+v\n", ProcessIncursionData(client, rawData))
 }
