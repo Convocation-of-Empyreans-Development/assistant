@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/bwmarrin/discordgo"
-	bot "github.com/lichgrave/MALRO_incursion_bot/discord"
 	"os"
 	"os/signal"
 	"syscall"
+
+	"github.com/bwmarrin/discordgo"
+	bot "github.com/lichgrave/MALRO_incursion_bot/discord"
 )
 
 //creates a websocket to connect to the bot
