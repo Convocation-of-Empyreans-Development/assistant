@@ -42,12 +42,12 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 	// We can access the bot configuration from within this function.
 	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
 		// Ignore all messages sent by the bot
-		if m.Author.ID == s.State.User.ID {
+		if m.Author.ID == s.State.User.ID || !MessageInApprovedChannels(config.ApprovedChannels, m.ChannelID) {
 			return
 		}
 		// Message handling: implement commands.
 		// !incursions - only fire in specified channels; send embeds containing current incursion data.
-		if m.Content == "!incursions" && MessageInApprovedChannels(config.ApprovedChannels, m.ChannelID) {
+		if m.Content == "!incursions" {
 			SendIncursionDataEmbed(s, m)
 		}
 	}
