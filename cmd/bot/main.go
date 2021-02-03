@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"os"
 	"os/signal"
@@ -10,9 +11,12 @@ import (
 	bot "github.com/lichgrave/MALRO_incursion_bot/discord"
 )
 
+var configFilename = flag.String("config", "config.json", "path to the bot configuration file")
+
 //creates a websocket to connect to the bot
 func main() {
-	config := bot.ReadConfig("./config.json")
+	flag.Parse()
+	config := bot.ReadConfig(*configFilename)
 	dg, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
@@ -20,6 +24,7 @@ func main() {
 	}
 	fmt.Println("Connection successful")
 
+	// Add a handler for received messages.
 	dg.AddHandler(bot.HandleMessageCreate)
 
 	// Open a websocket connection to Discord and begin listening.
@@ -29,7 +34,7 @@ func main() {
 		return
 	}
 
-	// Wait here until CTRL-C or other term signal is received.
+	// Wait here until CTRL-C or other process termination signal is received.
 	fmt.Println("Bot is now running.  Press CTRL-C to exit.")
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, syscall.SIGINT, syscall.SIGTERM, os.Interrupt, os.Kill)
