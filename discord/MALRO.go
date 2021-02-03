@@ -14,7 +14,8 @@ import (
 // Config represents the Discord bot configuration.
 type Config struct {
 	// Token holds the authentication token granted by Discord.
-	Token            string   `json:"token"`
+	Token string `json:"token"`
+	// ApprovedChannels holds a list of approved channel IDs for which commands can be used.
 	ApprovedChannels []string `json:"approved_channels"`
 }
 
