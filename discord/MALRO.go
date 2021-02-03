@@ -14,7 +14,8 @@ import (
 // Config represents the Discord bot configuration.
 type Config struct {
 	// Token holds the authentication token granted by Discord.
-	Token string `json:"token"`
+	Token            string   `json:"token"`
+	ApprovedChannels []string `json:"approved_channels"`
 }
 
 // ReadConfig reads a JSON file from disk containing the bot configuration
@@ -33,18 +34,38 @@ func ReadConfig(filename string) *Config {
 	return config
 }
 
-// HandleMessageCreate is the Discord event handler for receiving new text messages in guilds or DMs.
-// This handler is responsible for dispatching and executing commands issued by users.
-func HandleMessageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
-	// Ignore all messages created by the bot itself
-	// This isn't required in this specific example but it's a good practice.
-	if m.Author.ID == s.State.User.ID {
-		return
+// HandleMessageCreate returns a function used to handle the receipt of new messages and dispatch commands.
+// The closure here allows the handler to access the bot's configuration from within its scope.
+// We use this method because the bot requires the handler function to have the specified signature.
+func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.MessageCreate) {
+	// We can access the bot configuration from within this function.
+	return func(s *discordgo.Session, m *discordgo.MessageCreate) {
+		// Ignore all messages sent by the bot
+		if m.Author.ID == s.State.User.ID {
+			return
+		}
+		// Message handling: implement commands.
+		// !incursions - only fire in specified channels; send embeds containing current incursion data.
+		if m.Content == "!incursions" && MessageInApprovedChannels(config.ApprovedChannels, m.ChannelID) {
+			SendIncursionDataEmbed(s, m)
+		}
 	}
-	// Message handling: implement commands
-	if m.Content == "!incursions" {
-		SendIncursionDataEmbed(s, m)
+}
+
+// MessageInApprovedChannels checks whether a received message came from one of the specified channels.
+// We use a naive linear search, O(n), since we know the list of approved channels will be very small.
+// If there are no approved channels in the list, we assume that the command can be used everywhere,
+// and thus return true.
+func MessageInApprovedChannels(channels []string, id string) bool {
+	if len(channels) == 0 {
+		return true
 	}
+	for _, channel := range channels {
+		if channel == id {
+			return true
+		}
+	}
+	return false
 }
 
 // PickColorBySecurityStatus chooses a colour for the Discord message embed based on the

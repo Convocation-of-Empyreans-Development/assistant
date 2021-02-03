@@ -25,7 +25,7 @@ func main() {
 	fmt.Println("Connection successful")
 
 	// Add a handler for received messages.
-	dg.AddHandler(bot.HandleMessageCreate)
+	dg.AddHandler(bot.HandleMessageCreate(config))
 
 	// Open a websocket connection to Discord and begin listening.
 	err = dg.Open()
