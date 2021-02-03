@@ -49,7 +49,34 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 		// !incursions - only fire in specified channels; send embeds containing current incursion data.
 		if m.Content == "!incursions" {
 			SendIncursionDataEmbed(s, m)
+		} else if strings.Contains(m.Content, "!info") {
+			SendSelectedIncursionDataEmbed(s, m)
 		}
+	}
+}
+
+// SendSelectedIncursionDataEmbed searches for an incursion in the selected constellation.
+// If an incursion is present and active in the selected constellation, the bot will send an embed
+// containing the relevant information. Otherwise, the bot will output an error message.
+func SendSelectedIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
+	// Split the command from the first and only argument (i.e. the constellation)
+	command := strings.SplitN(m.Content, " ", 2)
+	if len(command) != 2 {
+		return
+	}
+	incursions := esi.GetIncursions()
+	found := false
+	for _, incursion := range incursions {
+		// Perform a case-insensitive equality check for the selected constellation
+		if strings.EqualFold(incursion.Constellation, command[1]) {
+			found = true
+			embed := CreateIncursionEmbed(incursion)
+			s.ChannelMessageSendEmbed(m.ChannelID, embed)
+			break
+		}
+	}
+	if !found {
+		s.ChannelMessageSend(m.ChannelID, "No incursion found in selected location.")
 	}
 }
 
