@@ -92,29 +92,35 @@ func PickColorBySecurityStatus(securitystatus float32) int {
 func SendIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
 	incursions := esi.GetIncursions()
 	for _, incursion := range incursions {
-		embed := &discordgo.MessageEmbed{
-			Color: PickColorBySecurityStatus(incursion.SecurityStatus),
-			Title: fmt.Sprintf("Incursion in %v", incursion.Constellation),
-			Fields: []*discordgo.MessageEmbedField{
-				{
-					Name:   "Staging system",
-					Value:  incursion.StagingSolarSystem,
-					Inline: true,
-				},
-				{
-					Name:   "Influence",
-					Value:  fmt.Sprintf("%.1f%%", incursion.Influence*100),
-					Inline: true,
-				},
-				{
-					Name:  "Infested systems",
-					Value: strings.Join(incursion.InfestedSolarSystems, ", "),
-				},
-			},
-		}
+		embed := CreateIncursionEmbed(incursion)
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)
 		if err != nil {
 			panic(err)
 		}
+	}
+}
+
+// CreateIncursionEmbed takes processed incursion data from the ESI API and creates
+// a Discord embed with the relevant information.
+func CreateIncursionEmbed(incursion esi.IncursionData) *discordgo.MessageEmbed {
+	return &discordgo.MessageEmbed{
+		Color: PickColorBySecurityStatus(incursion.SecurityStatus),
+		Title: fmt.Sprintf("Incursion in %v", incursion.Constellation),
+		Fields: []*discordgo.MessageEmbedField{
+			{
+				Name:   "Staging system",
+				Value:  incursion.StagingSolarSystem,
+				Inline: true,
+			},
+			{
+				Name:   "Influence",
+				Value:  fmt.Sprintf("%.1f%%", incursion.Influence*100),
+				Inline: true,
+			},
+			{
+				Name:  "Infested systems",
+				Value: strings.Join(incursion.InfestedSolarSystems, ", "),
+			},
+		},
 	}
 }
