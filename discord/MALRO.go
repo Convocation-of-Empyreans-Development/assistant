@@ -46,10 +46,11 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 			return
 		}
 		// Message handling: implement commands.
-		// !incursions - only fire in specified channels; send embeds containing current incursion data.
 		if m.Content == "!incursions" {
+			// !incursions - send embeds containing current incursion data.
 			SendIncursionDataEmbed(s, m)
 		} else if strings.Contains(m.Content, "!info") {
+			// !info <constellation> - send embed containing data for incursion in constellation if active.
 			SendSelectedIncursionDataEmbed(s, m)
 		}
 	}
