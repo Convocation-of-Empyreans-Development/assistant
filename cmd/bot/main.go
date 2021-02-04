@@ -17,6 +17,8 @@ import (
 var configFilename = flag.String("config", "config.json", "path to the bot configuration file")
 var memcachedAddress = flag.String("memcached-address", "",
 	"address (host:port) for memcached instance used by ESI API client")
+var userAgent = flag.String("user-agent", "MALRO Incursions Monitor",
+	"User agent identifying the ESI API client to CCP")
 
 //creates a websocket to connect to the bot
 func main() {
@@ -24,9 +26,9 @@ func main() {
 	flag.Parse()
 	if memcachedAddress != nil {
 		// Create ESI client with caching
-		client = esi.CreateCachingESIClient(*memcachedAddress)
+		client = esi.CreateCachingESIClient(*userAgent, *memcachedAddress)
 	} else {
-		client = esi.CreateESIClient()
+		client = esi.CreateESIClient(*userAgent)
 	}
 
 	config := bot.ReadConfig(*configFilename)

@@ -41,14 +41,14 @@ func CheckESIResponse(err error, response *http.Response) {
 }
 
 // CreateESIClient creates a new ESI client.
-func CreateESIClient() *goesi.APIClient {
-	client := goesi.NewAPIClient(&http.Client{}, "MALRO Incursions Monitor")
+func CreateESIClient(userAgent string) *goesi.APIClient {
+	client := goesi.NewAPIClient(&http.Client{}, userAgent)
 	return client
 }
 
 // CreateCachingESIClient creates a new ESI client, backed by a connection to a memcached server.
 // This should reduce the number of requests made to the ESI API.
-func CreateCachingESIClient(memcachedAddress string) *goesi.APIClient {
+func CreateCachingESIClient(userAgent string, memcachedAddress string) *goesi.APIClient {
 	// Connect to the memcached server
 	cache := memcache.New(memcachedAddress)
 
@@ -58,7 +58,7 @@ func CreateCachingESIClient(memcachedAddress string) *goesi.APIClient {
 	client := &http.Client{Transport: transport}
 
 	// Get our API Client.
-	return goesi.NewAPIClient(client, "MALRO Incursions Monitor")
+	return goesi.NewAPIClient(client, userAgent)
 }
 
 // GetIncursionData gets raw incursion data from the ESI API.
