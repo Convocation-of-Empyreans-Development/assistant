@@ -5,6 +5,10 @@ import (
 	"github.com/antihax/goesi"
 	"github.com/antihax/goesi/esi"
 	"net/http"
+
+	"github.com/bradfitz/gomemcache/memcache"
+	"github.com/gregjones/httpcache"
+	httpmemcache "github.com/gregjones/httpcache/memcache"
 )
 
 // IncursionData holds processed data on the state of a currently active incursion.
@@ -40,6 +44,21 @@ func CheckESIResponse(err error, response *http.Response) {
 func CreateESIClient() *goesi.APIClient {
 	client := goesi.NewAPIClient(&http.Client{}, "MALRO Incursions Monitor")
 	return client
+}
+
+// CreateCachingESIClient creates a new ESI client, backed by a connection to a memcached server.
+// This should reduce the number of requests made to the ESI API.
+func CreateCachingESIClient(memcachedAddress string) *goesi.APIClient {
+	// Connect to the memcached server
+	cache := memcache.New(memcachedAddress)
+
+	// Create a memcached http client for the ESI APIs.
+	transport := httpcache.NewTransport(httpmemcache.NewWithClient(cache))
+	transport.Transport = &http.Transport{Proxy: http.ProxyFromEnvironment}
+	client := &http.Client{Transport: transport}
+
+	// Get our API Client.
+	return goesi.NewAPIClient(client, "MALRO Incursions Monitor")
 }
 
 // GetIncursionData gets raw incursion data from the ESI API.
@@ -94,8 +113,7 @@ func GetSecurityStatus(client *goesi.APIClient, systemID int32) float32 {
 }
 
 // GetIncursions fetches the latest incursion data from ESI, processes it and returns it to the caller.
-func GetIncursions() []IncursionData {
-	client := CreateESIClient()
+func GetIncursions(client *goesi.APIClient) []IncursionData {
 	rawData := GetIncursionData(client)
 	return ProcessIncursionData(client, rawData)
 }

@@ -7,6 +7,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/antihax/goesi"
 	"github.com/bwmarrin/discordgo"
 	"github.com/lichgrave/MALRO_incursion_bot/esi"
 )
@@ -17,6 +18,8 @@ type Config struct {
 	Token string `json:"token"`
 	// ApprovedChannels holds a list of approved channel IDs for which commands can be used.
 	ApprovedChannels []string `json:"approved_channels"`
+	// ESIClient holds the ESI API client used to make requests.
+	ESIClient *goesi.APIClient
 }
 
 // ReadConfig reads a JSON file from disk containing the bot configuration
@@ -48,10 +51,10 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 		// Message handling: implement commands.
 		if m.Content == "!incursions" {
 			// !incursions - send embeds containing current incursion data.
-			SendIncursionDataEmbed(s, m)
+			SendIncursionDataEmbed(s, m, config.ESIClient)
 		} else if strings.Contains(m.Content, "!info") {
 			// !info <constellation> - send embed containing data for incursion in constellation if active.
-			SendSelectedIncursionDataEmbed(s, m)
+			SendSelectedIncursionDataEmbed(s, m, config.ESIClient)
 		}
 	}
 }
@@ -59,13 +62,13 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 // SendSelectedIncursionDataEmbed searches for an incursion in the selected constellation.
 // If an incursion is present and active in the selected constellation, the bot will send an embed
 // containing the relevant information. Otherwise, the bot will output an error message.
-func SendSelectedIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
+func SendSelectedIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate, client *goesi.APIClient) {
 	// Split the command from the first and only argument (i.e. the constellation)
 	command := strings.SplitN(m.Content, " ", 2)
 	if len(command) != 2 {
 		return
 	}
-	incursions := esi.GetIncursions()
+	incursions := esi.GetIncursions(client)
 	found := false
 	for _, incursion := range incursions {
 		// Perform a case-insensitive equality check for the selected constellation
@@ -117,8 +120,8 @@ func PickColorBySecurityStatus(securitystatus float32) int {
 // SendIncursionDataEmbed fetches the latest Incursion data from the ESI API,
 // and converts it into some easy-to-read embedded messages sent as a reply
 // in the requested channel.
-func SendIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate) {
-	incursions := esi.GetIncursions()
+func SendIncursionDataEmbed(s *discordgo.Session, m *discordgo.MessageCreate, client *goesi.APIClient) {
+	incursions := esi.GetIncursions(client)
 	for _, incursion := range incursions {
 		embed := CreateIncursionEmbed(incursion)
 		_, err := s.ChannelMessageSendEmbed(m.ChannelID, embed)

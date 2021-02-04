@@ -7,16 +7,31 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/antihax/goesi"
 	"github.com/bwmarrin/discordgo"
+
 	bot "github.com/lichgrave/MALRO_incursion_bot/discord"
+	"github.com/lichgrave/MALRO_incursion_bot/esi"
 )
 
 var configFilename = flag.String("config", "config.json", "path to the bot configuration file")
+var memcachedAddress = flag.String("memcached-address", "",
+	"address (host:port) for memcached instance used by ESI API client")
 
 //creates a websocket to connect to the bot
 func main() {
+	var client *goesi.APIClient
 	flag.Parse()
+	if memcachedAddress != nil {
+		// Create ESI client with caching
+		client = esi.CreateCachingESIClient(*memcachedAddress)
+	} else {
+		client = esi.CreateESIClient()
+	}
+
 	config := bot.ReadConfig(*configFilename)
+	config.ESIClient = client
+
 	dg, err := discordgo.New("Bot " + config.Token)
 	if err != nil {
 		fmt.Println("Error creating Discord session: ", err)
