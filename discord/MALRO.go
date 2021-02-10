@@ -104,10 +104,10 @@ func MessageInApprovedChannels(channels []string, id string) bool {
 // incursion's system security status
 func PickColorBySecurityStatus(securitystatus float32) int {
 	var color string
-	if securitystatus > 0.5 {
+	if securitystatus > 0.45 {
 		color = "04ff00" // high-security: green
-	} else if securitystatus < 0.5 && securitystatus > 0 {
-		color = "ff8400" // low-secuity: orange
+	} else if securitystatus < 0.45 && securitystatus > 0 {
+		color = "ff8400" // low-security: orange
 	} else {
 		color = "ff0000" // null-security: red
 	}
