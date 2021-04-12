@@ -7,9 +7,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/Convocation-of-Empyreans-Development/MALRO_incursion_bot/esi"
 	"github.com/antihax/goesi"
 	"github.com/bwmarrin/discordgo"
-	"github.com/lichgrave/MALRO_incursion_bot/esi"
 )
 
 // Config represents the Discord bot configuration.
