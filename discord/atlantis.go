@@ -16,7 +16,7 @@ func SetAtlantisEntranceLocation(location string, config *Config) {
 	config.AtlantisEntrance = location
 	distances := make(map[string]int)
 	for _, system := range config.HomeSystems {
-		destination := esi.SystemNameToId(config.ESIClient, location)
+		destination := esi.SystemNameToId(config.ESIClient, system)
 		distances[system] = esi.GetDistanceToSystem(config.ESIClient, origin, destination)
 	}
 	config.AtlantisDistances = distances
