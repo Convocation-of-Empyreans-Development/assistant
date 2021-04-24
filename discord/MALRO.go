@@ -63,6 +63,11 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 			location := strings.SplitAfterN(m.Content, "!setEntrance ", 1)[0]
 			SetAtlantisEntranceLocation(location, config)
 			SendAtlantisLocationEmbed(s, m, *config)
+		} else if strings.Contains(m.Content, "!atlantis") {
+			// !atlantis - get the location of the Atlantis entrance
+			if config.AtlantisEntrance != "" {
+				SendAtlantisLocationEmbed(s, m, *config)
+			}
 		}
 	}
 }
