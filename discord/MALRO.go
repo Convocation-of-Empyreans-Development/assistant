@@ -60,7 +60,7 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 			SendSelectedIncursionDataEmbed(s, m, config.ESIClient)
 		} else if strings.Contains(m.Content, "!setEntrance") {
 			// !setEntrance <system> - set the location of the entrance to Atlantis
-			location := strings.SplitAfterN(m.Content, "!setEntrance ", 1)[0]
+			location := strings.SplitAfter(m.Content, "!setEntrance ")[1]
 			SetAtlantisEntranceLocation(location, config)
 			SendAtlantisLocationEmbed(s, m, *config)
 		} else if strings.Contains(m.Content, "!atlantis") {
