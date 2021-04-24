@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/antihax/goesi"
 	"github.com/bwmarrin/discordgo"
 
 	"github.com/Convocation-of-Empyreans-Development/MALRO_incursion_bot/esi"
@@ -12,13 +11,13 @@ import (
 
 // SetAtlantisEntranceLocation sets the current entrance to the Atlantis wormhole.
 // This function also calculates the distances to each of the configured "home systems" for later retrieval.
-func SetAtlantisEntranceLocation(client *goesi.APIClient, location string, config Config) {
-	origin := esi.SystemNameToId(client, location)
+func SetAtlantisEntranceLocation(location string, config *Config) {
+	origin := esi.SystemNameToId(config.ESIClient, location)
 	config.AtlantisEntrance = location
 	distances := make(map[string]int)
 	for _, system := range config.HomeSystems {
-		destination := esi.SystemNameToId(client, location)
-		distances[system] = esi.GetDistanceToSystem(client, origin, destination)
+		destination := esi.SystemNameToId(config.ESIClient, location)
+		distances[system] = esi.GetDistanceToSystem(config.ESIClient, origin, destination)
 	}
 	config.AtlantisDistances = distances
 }
