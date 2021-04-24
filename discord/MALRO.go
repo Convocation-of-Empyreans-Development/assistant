@@ -58,6 +58,11 @@ func HandleMessageCreate(config *Config) func(*discordgo.Session, *discordgo.Mes
 		} else if strings.Contains(m.Content, "!info") {
 			// !info <constellation> - send embed containing data for incursion in constellation if active.
 			SendSelectedIncursionDataEmbed(s, m, config.ESIClient)
+		} else if strings.Contains(m.Content, "!setEntrance") {
+			// !setEntrance <system> - set the location of the entrance to Atlantis
+			location := strings.SplitAfterN(m.Content, "!setEntrance ", 1)[0]
+			SetAtlantisEntranceLocation(location, config)
+			SendAtlantisLocationEmbed(s, m, *config)
 		}
 	}
 }
