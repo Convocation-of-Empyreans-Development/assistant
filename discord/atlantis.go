@@ -26,20 +26,9 @@ func SetAtlantisEntranceLocation(location string, config *Config) {
 // sends it in the channel where the command used to request it was issued.
 func SendAtlantisLocationEmbed(s *discordgo.Session, m *discordgo.MessageCreate, config Config) {
 	embed := &discordgo.MessageEmbed{
-		Type:  "",
-		Title: "Atlantis entrance",
-		Fields: []*discordgo.MessageEmbedField{
-			{
-				Name:   "Entrance system",
-				Value:  config.AtlantisEntrance,
-				Inline: true,
-			},
-			{
-				Name:   "Distance to home systems",
-				Value:  GenerateDistanceString(config.AtlantisDistances),
-				Inline: false,
-			},
-		},
+		Type:        "",
+		Title:       fmt.Sprintf("Atlantis entrance: %v", config.AtlantisEntrance),
+		Description: GenerateDistanceString(config.AtlantisDistances),
 	}
 	s.ChannelMessageSendEmbed(m.ChannelID, embed)
 }
