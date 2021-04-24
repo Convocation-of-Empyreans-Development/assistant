@@ -15,6 +15,12 @@ type Config struct {
 	Token string `json:"token"`
 	// ApprovedChannels holds a list of approved channel IDs for which commands can be used.
 	ApprovedChannels []string `json:"approved_channels"`
+	// HomeSystems holds a list of system IDs pointing to important systems for the alliance.
+	HomeSystems []string `json:"home_systems"`
+	// AtlantisLocation holds the system ID for the location of the current Atlantis entrance.
+	AtlantisEntrance string
+	// AtlantisDistances holds the distances to each of the home systems from the Atlantis entrance.
+	AtlantisDistances map[string]int
 	// ESIClient holds the ESI API client used to make requests.
 	ESIClient *goesi.APIClient
 }
