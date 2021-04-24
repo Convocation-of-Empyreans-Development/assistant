@@ -37,6 +37,13 @@ func IdsToNames(client *goesi.APIClient, ids []int32) (names []string) {
 	return names
 }
 
+// SystemNameToId converts the name of a solar system to its system ID using the ESI API.
+func SystemNameToId(client *goesi.APIClient, name string) (id int32) {
+	ids, response, err := client.ESI.UniverseApi.PostUniverseIds(context.TODO(), []string{name}, nil)
+	CheckESIResponse(err, response)
+	return ids.Systems[0].Id
+}
+
 // GetSecurityStatus gets the security status of a given system ID from the ESI API.
 func GetSecurityStatus(client *goesi.APIClient, systemID int32) float32 {
 	system, response, err := client.ESI.UniverseApi.GetUniverseSystemsSystemId(context.TODO(), systemID, nil)
