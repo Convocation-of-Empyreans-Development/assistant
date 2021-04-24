@@ -10,8 +10,8 @@ import (
 	"github.com/antihax/goesi"
 	"github.com/bwmarrin/discordgo"
 
-	bot "github.com/lichgrave/MALRO_incursion_bot/discord"
-	"github.com/lichgrave/MALRO_incursion_bot/esi"
+	bot "github.com/Convocation-of-Empyreans-Development/MALRO_incursion_bot/discord"
+	"github.com/Convocation-of-Empyreans-Development/MALRO_incursion_bot/esi"
 )
 
 var configFilename = flag.String("config", "config.json", "path to the bot configuration file")

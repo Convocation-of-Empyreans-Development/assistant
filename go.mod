@@ -1,4 +1,4 @@
-module github.com/lichgrave/MALRO_incursion_bot
+module github.com/Convocation-of-Empyreans-Development/MALRO_incursion_bot
 
 go 1.15
 
