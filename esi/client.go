@@ -2,7 +2,9 @@ package esi
 
 import (
 	"context"
+	"log"
 	"net/http"
+	"runtime"
 
 	"github.com/antihax/goesi"
 )
@@ -10,7 +12,10 @@ import (
 // CheckESIResponse checks whether an error was returned by the ESI API, and panics if this is the case.
 func CheckESIResponse(err error, response *http.Response) {
 	if err != nil || response.StatusCode != http.StatusOK {
-		panic(err)
+		caller, file, line, ok := runtime.Caller(1)
+		if ok {
+			log.Printf("%v:%v (%v) | %v -> %v", file, line, caller, response.Status, err.Error())
+		}
 	}
 }
 
