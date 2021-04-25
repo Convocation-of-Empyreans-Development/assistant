@@ -14,10 +14,12 @@ import (
 func SetAtlantisEntranceLocation(location string, config *Config) {
 	origin := esi.SystemNameToId(config.ESIClient, location)
 	config.AtlantisEntrance = location
-	distances := make(map[string]int)
+	distances := make(map[string][]int)
 	for _, system := range config.HomeSystems {
 		destination := esi.SystemNameToId(config.ESIClient, system)
-		distances[system] = esi.GetDistanceToSystem(config.ESIClient, origin, destination)
+		distances[system] = make([]int, 2)
+		distances[system][0] = esi.GetDistanceToSystem(config.ESIClient, origin, destination, esi.Shortest)
+		distances[system][1] = esi.GetDistanceToSystem(config.ESIClient, origin, destination, esi.Secure)
 	}
 	config.AtlantisDistances = distances
 }
@@ -34,10 +36,10 @@ func SendAtlantisLocationEmbed(s *discordgo.Session, m *discordgo.MessageCreate,
 }
 
 // GenerateDistanceString creates a human-readable list of the distances to each of the home systems.
-func GenerateDistanceString(distances map[string]int) string {
+func GenerateDistanceString(distances map[string][]int) string {
 	builder := []string{}
 	for system, distance := range distances {
-		builder = append(builder, fmt.Sprintf("%s: %d", system, distance))
+		builder = append(builder, fmt.Sprintf("%s: short %d, safe %d", system, distance[0], distance[1]))
 	}
 	return strings.Join(builder, "\n")
 }
