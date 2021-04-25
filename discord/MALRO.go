@@ -20,7 +20,8 @@ type Config struct {
 	// AtlantisLocation holds the system ID for the location of the current Atlantis entrance.
 	AtlantisEntrance string
 	// AtlantisDistances holds the distances to each of the home systems from the Atlantis entrance.
-	AtlantisDistances map[string]int
+	// The distances are the shortest and safest routes respectively.
+	AtlantisDistances map[string][]int
 	// ESIClient holds the ESI API client used to make requests.
 	ESIClient *goesi.APIClient
 }
